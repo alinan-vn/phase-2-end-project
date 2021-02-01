@@ -29,9 +29,7 @@ public class AccountController {
 	public String CreateAccountGet(Model model) {
 		
 		UserEntity newUser = new UserEntity();
-		
 		model.addAttribute("newUser", newUser);
-		
 		return "createAccount";
 	}
 	
@@ -57,11 +55,11 @@ public class AccountController {
 	
 		UserEntity userData = new UserEntity();
 		model.addAttribute("userData", userData);	
-		return "userData";
+		return "login";
 	}
 	
 	@PostMapping(path = "/login")
-	public String LoginPost(@ModelAttribute("userFormData") UserEntity userData, BindingResult result) {
+	public void LoginPost(@ModelAttribute("userFormData") UserEntity userData, BindingResult result) {
 		
 		System.out.println("ACCOUNTCONTROLLER - Login");
 		System.out.println("Form Data: ");
@@ -74,13 +72,32 @@ public class AccountController {
 		if (userData.getPassword() == null) {
 			throw new RuntimeException("Password Required");
 		}
-		return "redirect:loginSuccess";
+		
+		Boolean userLoginCorrect = false;
+		
+		Iterable<UserEntity> users = userEntityCrudRepository.findAll();
+		for(UserEntity u : users) {
+			System.out.println("CHECKING USERNAMES: " + u.getName() + " vs " + userData.getName());
+			int nameRes = u.getName().compareTo(userData.getName());
+			if (nameRes == 0) {
+				System.out.println("CHECKING PASSWORDS: " + u.getPassword() + " vs " + userData.getPassword());
+				int passwordRes = u.getName().compareTo(userData.getName());
+				if (passwordRes == 0) {
+					userLoginCorrect = true;
+				}
+			}
+		}
+		
+		if (userLoginCorrect) {
+			System.out.println("++++USER LOGIN SUCCESSFUL++++");
+		} else {
+			System.out.println("----USER LOGIN FALSE----");
+		}
 	}
 	
 	@GetMapping(path = "/allAccounts")
 	public String ShowAccounts(@RequestParam(value = "userHtml", defaultValue = "null", required = true) String userHtml, Model model) {
 		Iterable<UserEntity> users = userEntityCrudRepository.findAll();
-//		List<String> allUsers = new ArrayList();
 		String allUserCodeHtml = "<ul>";
 		
 		for( UserEntity u : users) {
@@ -90,16 +107,10 @@ public class AccountController {
 			allUserCodeHtml += u.getName();
 			allUserCodeHtml += " === ";
 			allUserCodeHtml += u.getPassword();
-			allUserCodeHtml += "</li>";
-			
-//			allUsers.add(userAddedHtml);
+			allUserCodeHtml += "</li>";			
 		}
-		
 		allUserCodeHtml += "</ul>";
 		model.addAttribute("userHtml", allUserCodeHtml);
-
-		
-//		model.addAttributes("userHtml", allUsers);
 
 		return "allAccounts";
 	}
