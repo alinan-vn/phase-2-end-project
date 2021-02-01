@@ -81,7 +81,7 @@ public class AccountController {
 			int nameRes = u.getName().compareTo(userData.getName());
 			if (nameRes == 0) {
 				System.out.println("CHECKING PASSWORDS: " + u.getPassword() + " vs " + userData.getPassword());
-				int passwordRes = u.getName().compareTo(userData.getName());
+				int passwordRes = u.getPassword().compareTo(userData.getPassword());
 				if (passwordRes == 0) {
 					userLoginCorrect = true;
 				}
